@@ -1,0 +1,143 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: AWS CloudFormation Stack for setting up an ECS Cluster with EC2 launch type instances
+
+Resources:
+  # https://eu-north-1.console.aws.amazon.com/ecs/home?region=eu-north-1#/clusters/manual-cluster-2/services
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: my-first-cluster-v2
+
+  # https://eu-north-1.console.aws.amazon.com/vpc/home?region=eu-north-1#VpcDetails:VpcId=vpc-18fa2d71
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      InstanceTenancy: default
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      CidrBlock: '10.0.0.0/16'
+
+  # Security group https://eu-north-1.console.aws.amazon.com/vpc/home?region=eu-north-1#securityGroups:search=sg-0b5c475a8d23b028f
+  ContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Access to the containers
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+
+  # Internet gateway https://eu-north-1.console.aws.amazon.com/vpc/home?region=eu-north-1#igws:search=igw-0fa7e496e8f612fe2
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  # Subnet 1 https://eu-north-1.console.aws.amazon.com/vpc/home?region=eu-north-1#subnets:search=subnet-0b3581edaa13f062f;sort=SubnetId
+  PublicSubnetOne:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: eu-north-1a
+      CidrBlock: '10.0.0.0/24'
+      VpcId: !Ref VPC
+
+  # Subnet 2 https://eu-north-1.console.aws.amazon.com/vpc/home?region=eu-north-1#subnets:search=subnet-01a4b307f8c76dac0;sort=SubnetId
+  PublicSubnetTwo:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: eu-north-1b
+      CidrBlock: '10.0.1.0/24'
+      VpcId: !Ref VPC
+
+  # Virtual private gateway attachment EC2Co-Attac-16NB995WI3TL1
+  GatewayAttachement:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # Route table https://eu-north-1.console.aws.amazon.com/vpc/home?region=eu-north-1#RouteTables:search=rtb-0362f8c6fa95f3653;sort=routeTableId
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  # Amazon EC2 route EC2Co-Publi-RIDSZ8Z6OZ0N
+  PublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayAttachement
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+
+  # Subnet 1 route table association rtbassoc-0156664c0a2ba60ce
+  PublicSubnetOneRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetOne
+      RouteTableId: !Ref PublicRouteTable
+
+  # Subnet 2 route table association rtbassoc-066a019e314737794
+  PublicSubnetTwoRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnetTwo
+      RouteTableId: !Ref PublicRouteTable
+
+Outputs:
+  ECSCluster:
+    Value: !Ref ECSCluster
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ECSCluster' ] ]
+
+  VPC:
+    Value: !Ref VPC
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'VPC' ] ]
+
+  ContainerSecurityGroup:
+    Value: !Ref ContainerSecurityGroup
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'ContainerSecurityGroup' ] ]
+
+  InternetGateway:
+    Value: !Ref InternetGateway
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'InternetGateway' ] ]
+
+  PublicSubnetOne:
+    Value: !Ref PublicSubnetOne
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSubnetOne' ] ]
+
+  PublicSubnetTwo:
+    Value: !Ref PublicSubnetTwo
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSubnetTwo' ] ]
+
+  GatewayAttachement:
+    Value: !Ref GatewayAttachement
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'GatewayAttachement' ] ]
+
+  PublicRouteTable:
+    Value: !Ref PublicRouteTable
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicRouteTable' ] ]
+
+  PublicRoute:
+    Value: !Ref PublicRoute
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicRoute' ] ]
+
+  PublicSubnetOneRouteTableAssociation:
+    Value: !Ref PublicSubnetOneRouteTableAssociation
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSubnetOneRouteTableAssociation' ] ]
+
+  PublicSubnetTwoRouteTableAssociation:
+    Value: !Ref PublicSubnetTwoRouteTableAssociation
+    Export:
+      Name: !Join [ ':', [ !Ref 'AWS::StackName', 'PublicSubnetTwoRouteTableAssociation' ] ]

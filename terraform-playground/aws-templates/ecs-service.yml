@@ -1,0 +1,126 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: AWS CloudFormation Stack for setting up an ECS Cluster with EC2 launch type instances
+
+Parameters:
+  StackName:
+    Type: String
+    Default: production
+    Description: The name of the parent Fargate networking stack that you created. Necessary
+                 to locate and reference resources created by that stack.
+
+Resources:
+  EcsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref EcsRole
+
+  # https://eu-north-1.console.aws.amazon.com/ecs/home?region=eu-north-1#/taskDefinitions/console-sample-app-static/2
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: my-first-task-definition-v2
+#      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - EC2
+      ContainerDefinitions:
+        - Name: my-first-container-definition-v2
+          Cpu: 10
+          Memory: 300
+          EntryPoint:
+            - 'sh'
+            - '-c'
+          Command:
+            - "/bin/sh -c \"echo '<html> <head> <title>Amazon ECS Sample App HO-HO-HO</title> <style>body {margin-top: 40px; background-color: #333;} </style> </head><body> <div style=color:white;text-align:center> <h1>Amazon ECS Sample App</h1> <h2>Congratulations!</h2> <p>Your application is now running on a container in Amazon ECS.</p> </div></body></html>' >  /usr/local/apache2/htdocs/index.html && httpd-foreground\""
+          Image: 'httpd:2.4'
+          PortMappings:
+            - ContainerPort: 80
+              HostPort: 80
+              Protocol: tcp
+
+  # Launch configuration https://eu-north-1.console.aws.amazon.com/ec2/autoscaling/home?region=eu-north-1&state=hashArgs%23LaunchConfigurations%3Afilter%3DEC2ContainerService-manual-cluster-2-EcsInstanceLc-XBRPBAMHDL9Y
+  LaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: ami-03fc956d7468aa8a1
+      InstanceType: t3.micro
+      KeyName: wondersell-ecs-default
+      IamInstanceProfile: !Ref InstanceProfile
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 30
+            VolumeType: gp2
+      SecurityGroups:
+        - Fn::ImportValue:
+            !Join [':', [!Ref StackName, ContainerSecurityGroup]]
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          echo ECS_CLUSTER=${AWS::StackName} >> /etc/ecs/ecs.config;echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config;
+
+  # Auto Scaling group https://eu-north-1.console.aws.amazon.com/ec2autoscaling/home?region=eu-north-1#/details
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      MinSize: 1
+      MaxSize: 1
+      LaunchConfigurationName: !Ref LaunchConfiguration
+      HealthCheckGracePeriod: 300
+      HealthCheckType: EC2
+      VPCZoneIdentifier:
+        - Fn::ImportValue:
+            !Join [':', [!Ref StackName, PublicSubnetOne]]
+        - Fn::ImportValue:
+            !Join [':', [!Ref StackName, PublicSubnetTwo]]
+
+  # https://eu-north-1.console.aws.amazon.com/ecs/home?region=eu-north-1#/clusters/manual-cluster-2/services/manual-service-2/tasks
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: my-first-service-v2
+      Cluster:
+        Fn::ImportValue:
+          !Join [':', [!Ref StackName, ECSCluster]]
+      LaunchType: EC2
+      TaskDefinition: !Ref TaskDefinition
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DesiredCount: 1
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          SecurityGroups:
+            - Fn::ImportValue:
+                !Join [':', [!Ref StackName, ContainerSecurityGroup]]
+          Subnets:
+            - Fn::ImportValue:
+                !Join [':', [!Ref StackName, PublicSubnetOne]]
+            - Fn::ImportValue:
+                !Join [':', [!Ref StackName, PublicSubnetTwo]]
+
+  # IAM Role!!!
+
+Outputs:
+  TaskDefinition:
+    Value: !Ref TaskDefinition
+
+  Service:
+    Value: !Ref Service

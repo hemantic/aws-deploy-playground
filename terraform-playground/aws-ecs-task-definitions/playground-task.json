@@ -9,7 +9,7 @@
       "-c"
     ],
     "command": [
-      "/bin/sh -c \"echo '<html> <head> <title>Amazon ECS Sample App HO-HO-HO</title> <style>body {margin-top: 40px; background-color: #333;} </style> </head><body> <div style=color:white;text-align:center><h1>Сасай лалка!</h1><h2>Кисс май шайни метал эсс, Амазон!</h2> <p><img src=\"https://img2.freepng.ru/20171216/942/futurama-bender-png-5a35713a96d414.7990269015134518346178.jpg\">",",</p> </div></body></html>' >  /usr/local/apache2/htdocs/index.html && httpd-foreground\""
+      "/bin/sh -c \"echo '<html> <head> <title>Amazon ECS Sample App HO-HO-HO</title> <style>body {margin-top: 40px; background-color: #333;} </style> </head><body> <div style=color:white;text-align:center><h1>Сасай лалка!</h1><h2>Кисс май шайни метал эсс, Амазон!</h2><p><img src=https://img2.freepng.ru/20171216/942/futurama-bender-png-5a35713a96d414.7990269015134518346178.jpg></p></div></body></html>' >  /usr/local/apache2/htdocs/index.html && httpd-foreground\""
     ],
     "portMappings": [
       {

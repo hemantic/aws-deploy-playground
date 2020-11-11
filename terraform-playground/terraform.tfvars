@@ -1,5 +1,0 @@
-aws_access_key = "AKIA3B4PUWGOVZ77GB3K"
-aws_secret_key = "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"
-aws_account_id = "759973589405"
-aws_region     = "eu-north-1"
-aws_resource_prefix = "playground"

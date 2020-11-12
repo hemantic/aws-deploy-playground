@@ -30,16 +30,11 @@ workflows:
 
       - terraform/plan:
           persist-workspace: true
-          workspace-root: terraform-playground
           requires:
             - terraform/validate
 
       - terraform/apply:
           persist-workspace: true
-          workspace-root: terraform-playground
-          filters:
-            branches:
-              only: master
           requires:
             - terraform/plan
 

@@ -26,12 +26,10 @@ workflows:
     jobs:
       - terraform/validate:
           checkout: true
-          context: terraform-playground
           path: terraform-playground
 
       - terraform/plan:
           checkout: true
-          context: terraform-playground
           path: terraform-playground
           persist-workspace: true
           requires:
@@ -39,7 +37,6 @@ workflows:
 
       - terraform/apply:
           attach-workspace: true
-          context: terraform
           path: terraform-playground
           filters:
             branches:

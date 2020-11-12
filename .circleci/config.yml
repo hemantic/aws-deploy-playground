@@ -48,7 +48,6 @@ workflows:
             - terraform/plan
 
       - aws-ecr/build-and-push-image:
-          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
           repo: "${AWS_ECR_REPOSITORY_NAME}"
           skip-when-tags-exist: false
           tag: "latest,${CIRCLE_SHA1}"

@@ -26,17 +26,17 @@ workflows:
     jobs:
       - terraform/validate:
           checkout: true
-          path: terraform-playground
+          workspace-root: terraform-playground
 
       - terraform/plan:
           persist-workspace: true
-          path: terraform-playground
+          workspace-root: terraform-playground
           requires:
             - terraform/validate
 
       - terraform/apply:
           persist-workspace: true
-          path: terraform-playground
+          workspace-root: terraform-playground
           filters:
             branches:
               only: master

@@ -26,12 +26,12 @@ workflows:
     jobs:
       - terraform/validate:
           checkout: true
-          context: terraform
+          context: terraform-playground
           path: terraform-playground
 
       - terraform/plan:
           checkout: true
-          context: terraform
+          context: terraform-playground
           path: terraform-playground
           persist-workspace: true
           requires:
@@ -55,6 +55,7 @@ workflows:
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
+            - terraform/apply
 
           aws-region: ${AWS_DEFAULT_REGION}
 

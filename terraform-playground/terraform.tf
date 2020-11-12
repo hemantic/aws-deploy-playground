@@ -53,7 +53,7 @@ resource "aws_iam_instance_profile" "instance_profile" {
 resource "aws_cloudformation_stack" "stack" {
   name = local.aws_ecs_cluster_name
 
-  template_body = file("aws-templates/aws-ecs-stack.yml")
+  template_body = file("./aws-templates/aws-ecs-stack.yml")
   depends_on    = [aws_iam_instance_profile.instance_profile]
 
   parameters = {
@@ -86,7 +86,7 @@ resource "aws_cloudformation_stack" "stack" {
 }
 
 resource "aws_ecs_task_definition" "web" {
-  container_definitions = file("aws-ecs-task-definitions/playground-web.json")
+  container_definitions = file("./aws-ecs-task-definitions/playground-web.json")
   family                = local.aws_ecs_task_web_name
 }
 

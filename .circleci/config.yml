@@ -29,14 +29,13 @@ workflows:
           path: terraform-playground
 
       - terraform/plan:
-          checkout: true
-          path: terraform-playground
           persist-workspace: true
+          path: terraform-playground
           requires:
             - terraform/validate
 
       - terraform/apply:
-          attach-workspace: true
+          persist-workspace: true
           path: terraform-playground
           filters:
             branches:

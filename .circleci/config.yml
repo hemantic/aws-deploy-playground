@@ -30,7 +30,6 @@ workflows:
 
       - terraform/plan:
           checkout: true
-          persist-workspace: true
           workspace-root: terraform-playground
           requires:
             - terraform/validate

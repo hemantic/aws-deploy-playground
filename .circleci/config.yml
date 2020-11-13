@@ -61,7 +61,6 @@ jobs:
 
     steps:
       - aws-ecs/update-service:
-          aws-region: ${AWS_REGION}
           family: "${TF_VAR_aws_ecs_task_web_name}"
           cluster-name: "${TF_VAR_aws_ecs_cluster_name}"
           service-name: "${TF_VAR_aws_ecs_service_web_name}"

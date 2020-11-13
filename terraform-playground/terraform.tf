@@ -1,10 +1,20 @@
+variable "aws_access_key" {}
+variable "aws_secret_key" {}
+variable "aws_account_id" {}
+variable "aws_region" {}
+variable "aws_ecr_repository_name" {}
+variable "aws_ecs_cluster_name" {}
+variable "aws_ecs_stack_name" {}
+variable "aws_ecs_task_web_name" {}
+variable "aws_ecs_service_web_name" {}
+
 terraform {
   required_version = ">= 0.13"
 
   backend "s3" {
     bucket  = "hemantic-playground-terraform-state"
     key     = "global/s3/terraform.tfstate"
-    region  = "eu-north-1"
+    region  = var.aws_region
     encrypt = true
   }
 }
@@ -16,18 +26,8 @@ provider "aws" {
   version    = "~> 2.70"
 }
 
-locals {
-  aws_ecr_repository_name = "ecr-playground-repo"
-  aws_ecs_cluster_name    = "ecs-playground-cluster"
-  aws_ecs_stack_name      = "ecs-playground-stack"
-
-  aws_ecs_task_web_name    = "ecs-playground-task-web"
-  aws_ecs_service_web_name = "ecs-playground-service-web"
-}
-
-
 resource "aws_ecr_repository" "playground" {
-  name = local.aws_ecr_repository_name
+  name = var.aws_ecr_repository_name
 }
 
 resource "aws_ecr_lifecycle_policy" "max_images" {
@@ -54,7 +54,7 @@ EOF
 }
 
 resource "aws_ecs_cluster" "cluster" {
-  name = local.aws_ecs_cluster_name
+  name = var.aws_ecs_cluster_name
 }
 
 resource "aws_iam_role" "ecs_role" {
@@ -87,7 +87,7 @@ resource "aws_iam_instance_profile" "instance_profile" {
 }
 
 resource "aws_cloudformation_stack" "stack" {
-  name = local.aws_ecs_stack_name
+  name = var.aws_ecs_stack_name
 
   template_body = file("aws-templates/aws-ecs-stack.yml")
   depends_on    = [aws_iam_instance_profile.instance_profile]
@@ -101,7 +101,7 @@ resource "aws_cloudformation_stack" "stack" {
     EbsVolumeSize           = 22
     EbsVolumeType           = "gp2"
     EcsAmiId                = "ami-03fc956d7468aa8a1"
-    EcsClusterName          = local.aws_ecs_cluster_name
+    EcsClusterName          = var.aws_ecs_cluster_name
     EcsInstanceType         = "t3.micro"
     IamRoleInstanceProfile  = aws_iam_instance_profile.instance_profile.arn
     IsWindows               = false
@@ -115,7 +115,7 @@ resource "aws_cloudformation_stack" "stack" {
     SubnetCidr1             = "10.0.0.0/24"
     SubnetCidr2             = "10.0.1.0/24"
     UseSpot                 = false
-    UserData                = "#!/bin/bash\necho ECS_CLUSTER=${local.aws_ecs_cluster_name} >> /etc/ecs/ecs.config;echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config;"
+    UserData                = "#!/bin/bash\necho ECS_CLUSTER=${var.aws_ecs_cluster_name} >> /etc/ecs/ecs.config;echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config;"
     VpcAvailabilityZones    = "eu-north-1a,eu-north-1b,eu-north-1c"
     VpcCidr                 = "10.0.0.0/16"
   }
@@ -123,11 +123,11 @@ resource "aws_cloudformation_stack" "stack" {
 
 resource "aws_ecs_task_definition" "web" {
   container_definitions = data.template_file.container_image_web.rendered
-  family                = local.aws_ecs_task_web_name
+  family                = var.aws_ecs_task_web_name
 }
 
 resource "aws_ecs_service" "web" {
-  name = local.aws_ecs_service_web_name
+  name = var.aws_ecs_service_web_name
 
   cluster         = aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.web.arn
@@ -137,7 +137,7 @@ resource "aws_ecs_service" "web" {
 data "template_file" "container_image_web" {
   template = file("aws-ecs-task-definitions/playground-web.json")
   vars = {
-    service_name = local.aws_ecs_service_web_name
+    service_name = var.aws_ecs_service_web_name
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
   }

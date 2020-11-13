@@ -5,21 +5,23 @@ orbs:
   aws-ecs: circleci/aws-ecs@1.4.0
   terraform: circleci/terraform@1.1.0
 
+envs: &envs
+  environment:
+    # Exporting environment variables and setting them as
+    # TF_VAR prefixed names so we don't have to manually pass them to terraform via -var.
 
-# AWS_ACCOUNT_ID
-# AWS_ACCESS_KEY_ID
-# AWS_SECRET_ACCESS_KEY
+    # First, pass secrets from CircleCI project settings
+    TF_VAR_aws_access_key: "${AWS_ACCESS_KEY_ID}"
+    TF_VAR_aws_secret_key: "${AWS_SECRET_ACCESS_KEY}"
+    TF_VAR_aws_region: "${AWS_REGION}"
+    TF_VAR_aws_account_id: "${AWS_ACCOUNT_ID}"
 
-# AWS_REGION – eu-north-1
-# AWS_ECR_REPOSITORY_NAME – ecr_playground_repo
-# AWS_ECS_TASK_NAME – ecs_playground_task_web, ecs_playground_task_celery
-# AWS_ECS_SERVICE_NAME – ecs_playground_service_web, ecs_playground_service_celery
-# AWS_ECS_CLUSTER_NAME – ecs_playground_cluster
-
-
-#orbs:
-#  aws-ecr: circleci/aws-ecr@0.0.2
-#  aws-ecs: circleci/aws-ecs@0.0.10
+    # Than pass settings in order to reuse them here and in Terraform, keeping them DRY
+    TF_VAR_aws_ecr_repository_name: "ecr-playground-repo"
+    TF_VAR_aws_ecs_cluster_name: "ecs-playground-cluster"
+    TF_VAR_aws_ecs_stack_name: "ecs-playground-stack"
+    TF_VAR_aws_ecs_task_web_name: "ecs-playground-task-web"
+    TF_VAR_aws_ecs_service_web_name: "ecs-playground-service-web"
 
 jobs:
   terraform-update-infrastructure:
@@ -33,30 +35,34 @@ jobs:
           command: |
             cd terraform-playground
             terraform init -backend-config="access_key=${AWS_ACCESS_KEY_ID}" -backend-config="secret_key=${AWS_SECRET_ACCESS_KEY}"
-            source setup_env.sh
             terraform plan
             terraform apply -auto-approve
 
 workflows:
   build-and-deploy:
     jobs:
-      - terraform-update-infrastructure
+      - terraform-update-infrastructure:
+          <<: *envs
 
       - aws-ecr/build-and-push-image:
-          repo: "${AWS_ECR_REPOSITORY_NAME}"
+          <<: *envs
+
+          repo: "${TF_VAR_aws_ecr_repository_name}"
           skip-when-tags-exist: false
           tag: "latest,${CIRCLE_SHA1}"
           create-repo: true
 
       - aws-ecs/deploy-service-update:
+          <<: *envs
+
           requires:
             - aws-ecr/build-and-push-image
             - terraform-update-infrastructure
 
           aws-region: ${AWS_REGION}
 
-          family: "${AWS_ECS_TASK_NAME}"
-          cluster-name: "${AWS_ECS_CLUSTER_NAME}"
-          service-name: "${AWS_ECS_SERVICE_NAME}"
+          family: "${TF_VAR_aws_ecs_task_web_name}"
+          cluster-name: "${TF_VAR_aws_ecs_cluster_name}"
+          service-name: "${TF_VAR_aws_ecs_service_web_name}"
           force-new-deployment: true
           #container-image-name-updates: "container=${AWS_ECS_SERVICE_NAME},tag=${CIRCLE_SHA1}"

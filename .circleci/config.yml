@@ -46,7 +46,7 @@ commands:
 jobs:
   update-infrastructure:
     docker:
-      - image: hashicorp/terraform:light
+      - image: circleci/python:3.8-buster
 
     steps:
       - set-envs

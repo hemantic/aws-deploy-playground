@@ -6,7 +6,7 @@ orbs:
   terraform: circleci/terraform@1.1.0
 
 commands:
-  set_envs:
+  set-envs:
     description: Reusable command for setting up env vars
     steps:
       - run:
@@ -28,13 +28,29 @@ commands:
             echo "export TF_VAR_aws_ecs_task_web_name=ecs-playground-task-web" >> $BASH_ENV
             echo "export TF_VAR_aws_ecs_service_web_name=ecs-playground-service-web" >> $BASH_ENV
 
+  test-envs:
+    description: Test setted env vars
+    steps:
+      - run:
+          name: Echo some (probably) setted env vars
+          command: |
+            echo $AWS_REGION
+            echo $TF_VAR_aws_region
+
+            echo $TF_VAR_aws_ecr_repository_name
+            echo $TF_VAR_aws_ecs_cluster_name
+            echo $TF_VAR_aws_ecs_stack_name
+            echo $TF_VAR_aws_ecs_task_web_name
+
+
 jobs:
   update-infrastructure:
     docker:
       - image: hashicorp/terraform:light
 
     steps:
-      - set_envs
+      - set-envs
+      - test-envs
       - checkout
       - run:
           name: Terraform init & apply
@@ -49,7 +65,8 @@ jobs:
       - image: circleci/python:3.8-buster
 
     steps:
-      - set_envs
+      - set-envs
+      - test-envs
       - checkout
       - aws-ecr/build-and-push-image:
           repo: "${TF_VAR_aws_ecr_repository_name}"
@@ -62,7 +79,8 @@ jobs:
       - image: circleci/python:3.8-buster
 
     steps:
-      - set_envs
+      - set-envs
+      - test-envs
       - checkout
       - aws-ecs/update-service:
           family: "${TF_VAR_aws_ecs_task_web_name}"

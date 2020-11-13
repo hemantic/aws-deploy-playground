@@ -56,8 +56,8 @@ workflows:
       - terraform-plan
 
       - terraform-apply:
-          - requires:
-              - terraform-plan
+          requires:
+            - terraform-plan
 
       - aws-ecr/build-and-push-image:
           repo: "${AWS_ECR_REPOSITORY_NAME}"

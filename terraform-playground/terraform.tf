@@ -6,11 +6,12 @@ provider "aws" {
 }
 
 locals {
-  aws_ecr_repository_name = "ecr_playground_repo"
-  aws_ecs_cluster_name    = "ecs_playground_cluster"
+  aws_ecr_repository_name = "ecr-playground-repo"
+  aws_ecs_cluster_name    = "ecs-playground-cluster"
+  aws_ecs_stack_name      = "ecs-playground-stack"
 
-  aws_ecs_task_web_name    = "ecs_playground_task_web"
-  aws_ecs_service_web_name = "ecs_playground_service_web"
+  aws_ecs_task_web_name    = "ecs-playground-task-web"
+  aws_ecs_service_web_name = "ecs-playground-service-web"
 }
 
 resource "aws_ecr_repository" "repository" {
@@ -51,7 +52,7 @@ resource "aws_iam_instance_profile" "instance_profile" {
 }
 
 resource "aws_cloudformation_stack" "stack" {
-  name = local.aws_ecs_cluster_name
+  name = local.aws_ecs_stack_name
 
   template_body = file("aws-templates/aws-ecs-stack.yml")
   depends_on    = [aws_iam_instance_profile.instance_profile]

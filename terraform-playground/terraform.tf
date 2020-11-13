@@ -2,10 +2,10 @@ terraform {
   required_version = ">= 0.13"
 
   backend "s3" {
-    bucket         = "hemantic-playground-terraform-state"
-    key            = "global/s3/terraform.tfstate"
-    region         = "eu-north-1"
-    encrypt        = true
+    bucket  = "hemantic-playground-terraform-state"
+    key     = "global/s3/terraform.tfstate"
+    region  = "eu-north-1"
+    encrypt = true
   }
 }
 
@@ -95,7 +95,12 @@ resource "aws_cloudformation_stack" "stack" {
 
 resource "aws_ecs_task_definition" "web" {
   container_definitions = file("aws-ecs-task-definitions/playground-web.json")
-  family                = local.aws_ecs_task_web_name
+  vars = {
+    service_name = local.aws_ecs_service_web_name
+    image_name   = local.aws_ecr_repository_name
+  }
+
+  family = local.aws_ecs_task_web_name
 }
 
 resource "aws_ecs_service" "web" {

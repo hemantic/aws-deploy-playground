@@ -55,7 +55,7 @@ workflows:
 
           aws-region: ${AWS_REGION}
 
-          family: "${AWS_ECS_TASK_NAME}"
+          family: "${AWS_ECS_SERVICE_NAME}"
           cluster-name: "${AWS_ECS_CLUSTER_NAME}"
           service-name: "${AWS_ECS_SERVICE_NAME}"
           force-new-deployment: true

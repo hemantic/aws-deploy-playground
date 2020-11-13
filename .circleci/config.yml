@@ -47,6 +47,7 @@ workflows:
           skip-when-tags-exist: false
           tag: "latest,${CIRCLE_SHA1}"
           path: src
+          create-repo: true
 
       - aws-ecs/deploy-service-update:
           requires:

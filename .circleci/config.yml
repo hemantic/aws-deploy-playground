@@ -34,7 +34,7 @@ jobs:
             cd terraform-playground
             terraform init
             source setup_env.sh
-            terraform plan -var "version_tag=${CIRCLE_SHA1}"
+            terraform plan
 
   terraform-apply:
     docker:
@@ -48,7 +48,7 @@ jobs:
             cd terraform-playground
             terraform init
             source setup_env.sh
-            terraform apply -auto-approve -var "version_tag=${CIRCLE_SHA1}"
+            terraform apply -auto-approve
 
 workflows:
   build-and-deploy:

@@ -24,7 +24,9 @@ envs: &envs
     TF_VAR_aws_ecs_service_web_name: "ecs-playground-service-web"
 
 jobs:
-  terraform-update-infrastructure:
+  update-infrastructure:
+    <<: *envs
+
     docker:
       - image: hashicorp/terraform:light
 
@@ -38,31 +40,35 @@ jobs:
             terraform plan
             terraform apply -auto-approve
 
-workflows:
-  build-and-deploy:
-    jobs:
-      - terraform-update-infrastructure:
-          <<: *envs
+  update-image:
+    <<: *envs
 
+    steps:
       - aws-ecr/build-and-push-image:
-          <<: *envs
-
           repo: "${TF_VAR_aws_ecr_repository_name}"
           skip-when-tags-exist: false
           tag: "latest,${CIRCLE_SHA1}"
           create-repo: true
 
+  deploy-update:
+    <<: *envs
+
+    steps:
       - aws-ecs/deploy-service-update:
-          <<: *envs
-
-          requires:
-            - aws-ecr/build-and-push-image
-            - terraform-update-infrastructure
-
           aws-region: ${AWS_REGION}
-
           family: "${TF_VAR_aws_ecs_task_web_name}"
           cluster-name: "${TF_VAR_aws_ecs_cluster_name}"
           service-name: "${TF_VAR_aws_ecs_service_web_name}"
           force-new-deployment: true
           #container-image-name-updates: "container=${AWS_ECS_SERVICE_NAME},tag=${CIRCLE_SHA1}"
+
+
+workflows:
+  build-and-deploy:
+    jobs:
+      - update-infrastructure
+      - update-image
+      - deploy-update:
+          requires:
+            - update-infrastructure
+            - update-image

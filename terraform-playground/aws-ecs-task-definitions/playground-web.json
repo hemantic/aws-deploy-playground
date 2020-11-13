@@ -1,7 +1,7 @@
 [
   {
     "name": "ecs_playground_task_web",
-    "image": "ecr_playground",
+    "image": "ecr_playground_repo",
     "cpu": 10,
     "memory": 256,
     "entryPoint": [

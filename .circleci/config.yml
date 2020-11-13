@@ -77,6 +77,8 @@ jobs:
       - set-envs
       - test-envs
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - aws-ecr/build-and-push-image:
           repo: "${TF_VAR_aws_ecr_repository_name}"
           skip-when-tags-exist: false

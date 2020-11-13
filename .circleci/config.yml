@@ -43,6 +43,9 @@ jobs:
   update-image:
     <<: *envs
 
+    docker:
+      - image: circleci/python:3.8-buster
+
     steps:
       - aws-ecr/build-and-push-image:
           repo: "${TF_VAR_aws_ecr_repository_name}"
@@ -52,6 +55,9 @@ jobs:
 
   deploy-update:
     <<: *envs
+
+    docker:
+      - image: circleci/python:3.8-buster
 
     steps:
       - aws-ecs/deploy-service-update:

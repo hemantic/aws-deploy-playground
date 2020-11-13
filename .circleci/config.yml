@@ -34,7 +34,7 @@ jobs:
             cd terraform-playground
             terraform init
             source setup_env.sh
-            terraform plan -var-file="prod.tfvars" -var "version_tag=${CIRCLE_SHA1}"
+            terraform plan -var "version_tag=${CIRCLE_SHA1}"
 
   terraform-apply:
     docker:

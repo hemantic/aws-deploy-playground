@@ -44,7 +44,7 @@ commands:
             echo $TF_VAR_aws_ecs_cluster_name
             echo $TF_VAR_aws_ecs_stack_name
             echo $TF_VAR_aws_ecs_task_web_name
-            eho $AWS_ECR_ACCOUNT_URL
+            echo $AWS_ECR_ACCOUNT_URL
 
 
 jobs:

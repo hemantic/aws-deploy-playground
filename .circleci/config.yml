@@ -46,7 +46,7 @@ commands:
 jobs:
   update-infrastructure:
     docker:
-      - image: circleci/python:3.8-buster
+      - image: hashicorp/terraform:light
 
     steps:
       - set-envs
@@ -63,6 +63,11 @@ jobs:
   update-image:
     docker:
       - image: circleci/python:3.8-buster
+
+    build:  # Necessary for passing env vars (https://circleci.com/docs/2.0/env-vars/#alpine-linux)
+      shell: /bin/sh -leo pipefail
+      environment:
+        - BASH_ENV: /etc/profile
 
     steps:
       - set-envs

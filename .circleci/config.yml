@@ -5,33 +5,36 @@ orbs:
   aws-ecs: circleci/aws-ecs@1.4.0
   terraform: circleci/terraform@1.1.0
 
-envs: &envs
-  environment:
-    # Exporting environment variables and setting them as
-    # TF_VAR prefixed names so we don't have to manually pass them to terraform via -var.
+set-envs: &envs
+  - run:
+      name: Setup Environment Variables
+      command: |
+        # Exporting environment variables and setting them as
+        # TF_VAR prefixed names so we don't have to manually pass them to terraform via -var.
 
-    # First, pass secrets from CircleCI project settings
-    TF_VAR_aws_access_key: ${AWS_ACCESS_KEY_ID}
-    TF_VAR_aws_secret_key: ${AWS_SECRET_ACCESS_KEY}
-    TF_VAR_aws_region: ${AWS_REGION}
-    TF_VAR_aws_account_id: ${AWS_ACCOUNT_ID}
+        # First, pass secrets from CircleCI project settings
+        #echo "export TF_VAR_aws_access_key=$AWS_ACCESS_KEY_ID" >> $BASH_ENV
+        #echo "export TF_VAR_aws_secret_key=$AWS_SECRET_ACCESS_KEY" >> $BASH_ENV
+        echo "export TF_VAR_aws_region=$AWS_REGION" >> $BASH_ENV
+        echo "export TF_VAR_aws_account_id=$AWS_ACCOUNT_ID" >> $BASH_ENV
 
-    # Than pass settings in order to reuse them here and in Terraform, keeping them DRY
-    TF_VAR_aws_ecr_repository_name: "ecr-playground-repo"
-    TF_VAR_aws_ecs_cluster_name: "ecs-playground-cluster"
-    TF_VAR_aws_ecs_stack_name: "ecs-playground-stack"
-    TF_VAR_aws_ecs_task_web_name: "ecs-playground-task-web"
-    TF_VAR_aws_ecs_service_web_name: "ecs-playground-service-web"
+        # Than pass settings in order to reuse them here and in Terraform, keeping them DRY
+        echo "export TF_VAR_aws_ecr_repository_name=ecr-playground-repo" >> $BASH_ENV
+        echo "export TF_VAR_aws_ecs_cluster_name=ecs-playground-cluster" >> $BASH_ENV
+        echo "export TF_VAR_aws_ecs_stack_name=ecs-playground-stack" >> $BASH_ENV
+        echo "export TF_VAR_aws_ecs_task_web_name=ecs-playground-task-web" >> $BASH_ENV
+        echo "export TF_VAR_aws_ecs_service_web_name=ecs-playground-service-web" >> $BASH_ENV
 
 jobs:
   update-infrastructure:
-    <<: *envs
-
     docker:
       - image: hashicorp/terraform:light
 
     steps:
+      <<: *envs
+
       - checkout
+
       - run:
           name: Terraform init & apply
           command: |
@@ -41,12 +44,14 @@ jobs:
             terraform apply -auto-approve
 
   update-image:
-    <<: *envs
-
     docker:
       - image: circleci/python:3.8-buster
 
     steps:
+      <<: *envs
+
+      - checkout
+
       - aws-ecr/build-and-push-image:
           repo: "${TF_VAR_aws_ecr_repository_name}"
           skip-when-tags-exist: false
@@ -54,12 +59,14 @@ jobs:
           create-repo: true
 
   deploy-update:
-    <<: *envs
-
     docker:
       - image: circleci/python:3.8-buster
 
     steps:
+      <<: *envs
+
+      - checkout
+
       - aws-ecs/update-service:
           family: "${TF_VAR_aws_ecs_task_web_name}"
           cluster-name: "${TF_VAR_aws_ecs_cluster_name}"

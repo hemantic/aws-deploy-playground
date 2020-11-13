@@ -139,5 +139,6 @@ data "template_file" "container_image_web" {
   vars = {
     service_name = local.aws_ecs_service_web_name
     image_name   = aws_ecr_repository.playground.repository_url
+    aws_region   = var.aws_region
   }
 }

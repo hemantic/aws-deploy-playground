@@ -21,7 +21,8 @@
     "logConfiguration": {
     "logDriver": "awslogs",
     "options": {
-        "awslogs-group":"${service_name}"
+        "awslogs-group": "${service_name}",
+        "awslogs-region": "${aws_region}"
       }
     }
   }

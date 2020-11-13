@@ -21,23 +21,43 @@ orbs:
 #  aws-ecr: circleci/aws-ecr@0.0.2
 #  aws-ecs: circleci/aws-ecs@0.0.10
 
+jobs:
+  terraform-plan:
+    docker:
+      - image: hashicorp/terraform:light
+
+    steps:
+      - checkout
+      - run:
+          name: Terraform init & plan
+          command: |
+            cd terraform-playground
+            terraform init -backend-config="access_key=${AWS_ACCESS_KEY_ID}" -backend-config="secret_key=${AWS_SECRET_ACCESS_KEY}"
+            source setup_env.sh
+            terraform plan -var-file="prod.tfvars" -var "version_tag=${CIRCLE_SHA1}"
+
+  terraform-apply:
+    docker:
+      - image: hashicorp/terraform:light
+
+      steps:
+        - checkout
+        - run:
+            name: Terraform init & apply
+            command: |
+              cd terraform-playground
+              terraform init -backend-config="access_key=${AWS_ACCESS_KEY_ID}" -backend-config="secret_key=${AWS_SECRET_ACCESS_KEY}"
+              source setup_env.sh
+              terraform apply -auto-approve -var "version_tag=${CIRCLE_SHA1}"
+
 workflows:
   build-and-deploy:
     jobs:
-      - terraform/validate:
-          checkout: true
-          workspace-root: terraform-playground
+      - terraform-plan
 
-      - terraform/plan:
-          checkout: true
-          workspace-root: terraform-playground
-          requires:
-            - terraform/validate
-
-      - terraform/apply:
-          attach-workspace: true
-          requires:
-            - terraform/plan
+      - terraform-apply:
+          - requires:
+              - terraform-plan
 
       - aws-ecr/build-and-push-image:
           repo: "${AWS_ECR_REPOSITORY_NAME}"
@@ -47,7 +67,7 @@ workflows:
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
-            - terraform/apply
+            - terraform-apply
 
           aws-region: ${AWS_DEFAULT_REGION}
 

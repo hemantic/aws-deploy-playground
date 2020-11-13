@@ -23,7 +23,7 @@ resource "aws_ecs_cluster" "cluster" {
 }
 
 resource "aws_iam_role" "ecs_role" {
-  name               = "ecs_playground_role"
+  name               = "ecs-playground-role"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -46,7 +46,7 @@ resource "aws_iam_role_policy_attachment" "ecs_iam_policy_attachment" {
 }
 
 resource "aws_iam_instance_profile" "instance_profile" {
-  name = "instance_profile"
+  name = "instance-profile"
   path = "/"
   role = aws_iam_role.ecs_role.name
 }

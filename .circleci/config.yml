@@ -48,6 +48,11 @@ jobs:
     docker:
       - image: hashicorp/terraform:light
 
+    # Necessary for passing env vars (https://circleci.com/docs/2.0/env-vars/#alpine-linux)
+    shell: /bin/sh -leo pipefail
+    environment:
+      - BASH_ENV: /etc/profile
+
     steps:
       - set-envs
       - test-envs
@@ -63,11 +68,6 @@ jobs:
   update-image:
     docker:
       - image: circleci/python:3.8-buster
-
-    # Necessary for passing env vars (https://circleci.com/docs/2.0/env-vars/#alpine-linux)
-    shell: /bin/sh -leo pipefail
-    environment:
-      - BASH_ENV: /etc/profile
 
     steps:
       - set-envs

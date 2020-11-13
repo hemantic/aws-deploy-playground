@@ -54,7 +54,7 @@ workflows:
             - aws-ecr/build-and-push-image
             - terraform-update-infrastructure
 
-          aws-region: ${AWS_DEFAULT_REGION}
+          aws-region: ${AWS_REGION}
 
           family: "${AWS_ECS_SERVICE_NAME}"
           cluster-name: "${AWS_ECS_CLUSTER_NAME}"

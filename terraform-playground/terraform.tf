@@ -14,7 +14,6 @@ terraform {
   backend "s3" {
     bucket  = "hemantic-playground-terraform-state"
     key     = "global/s3/terraform.tfstate"
-    region  = "eu-north-1"
     encrypt = true
   }
 }

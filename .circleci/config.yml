@@ -58,4 +58,5 @@ workflows:
 
           family: "${AWS_ECS_SERVICE_NAME}"
           cluster-name: "${AWS_ECS_CLUSTER_NAME}"
-          container-image-name-updates: "container=${AWS_ECR_REPOSITORY_NAME},tag=${CIRCLE_SHA1}"
+          service-name: "${AWS_ECS_SERVICE_NAME}"
+          container-image-name-updates: "container=${AWS_ECS_SERVICE_NAME},tag=${CIRCLE_SHA1}"

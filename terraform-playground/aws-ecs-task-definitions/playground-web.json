@@ -9,7 +9,7 @@
       "-c"
     ],
     "command": [
-      "uwsgi --http :8000 --module srv.web:app --workers 1 --threads 1"
+      "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
     ],
     "portMappings": [
       {

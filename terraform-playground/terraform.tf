@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 0.13"
 
   backend "s3" {
-    bucket         = "playground-terraform-state"
+    bucket         = "hemantic-playground-terraform-state"
     key            = "global/s3/terraform.tfstate"
     region         = "eu-north-1"
     dynamodb_table = "playground-terraform-state-locks-table"

@@ -40,15 +40,15 @@ jobs:
     docker:
       - image: hashicorp/terraform:light
 
-      steps:
-        - checkout
-        - run:
-            name: Terraform init & apply
-            command: |
-              cd terraform-playground
-              terraform init -backend-config="access_key=${AWS_ACCESS_KEY_ID}" -backend-config="secret_key=${AWS_SECRET_ACCESS_KEY}"
-              source setup_env.sh
-              terraform apply -auto-approve -var "version_tag=${CIRCLE_SHA1}"
+    steps:
+      - checkout
+      - run:
+          name: Terraform init & apply
+          command: |
+            cd terraform-playground
+            terraform init -backend-config="access_key=${AWS_ACCESS_KEY_ID}" -backend-config="secret_key=${AWS_SECRET_ACCESS_KEY}"
+            source setup_env.sh
+            terraform apply -auto-approve -var "version_tag=${CIRCLE_SHA1}"
 
 workflows:
   build-and-deploy:

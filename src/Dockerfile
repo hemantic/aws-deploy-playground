@@ -10,6 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install uwsgi
 
-RUN mkdir -p /srv
+ADD . /srv
 
 WORKDIR /

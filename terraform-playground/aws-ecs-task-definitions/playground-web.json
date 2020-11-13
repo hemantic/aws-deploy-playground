@@ -5,7 +5,8 @@
     "cpu": 10,
     "memory": 256,
     "entryPoint": [
-      "/"
+      "sh",
+      "-c"
     ],
     "command": [
       "uwsgi --http :8000 --module srv.web:app --workers 1 --threads 1"

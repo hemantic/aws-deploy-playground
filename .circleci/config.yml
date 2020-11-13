@@ -5,7 +5,7 @@ orbs:
   aws-ecs: circleci/aws-ecs@1.4.0
   terraform: circleci/terraform@1.1.0
 
-set-envs: &envs
+envs: &envs
   - run:
       name: Setup Environment Variables
       command: |

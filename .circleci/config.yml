@@ -22,21 +22,7 @@ orbs:
 #  aws-ecs: circleci/aws-ecs@0.0.10
 
 jobs:
-  terraform-plan:
-    docker:
-      - image: hashicorp/terraform:light
-
-    steps:
-      - checkout
-      - run:
-          name: Terraform init & plan
-          command: |
-            cd terraform-playground
-            terraform init
-            source setup_env.sh
-            terraform plan
-
-  terraform-apply:
+  terraform-update-infrastructure:
     docker:
       - image: hashicorp/terraform:light
 
@@ -48,16 +34,13 @@ jobs:
             cd terraform-playground
             terraform init
             source setup_env.sh
+            terraform plan
             terraform apply -auto-approve
 
 workflows:
   build-and-deploy:
     jobs:
-      - terraform-plan
-
-      - terraform-apply:
-          requires:
-            - terraform-plan
+      - terraform-update-infrastructure
 
       - aws-ecr/build-and-push-image:
           repo: "${AWS_ECR_REPOSITORY_NAME}"
@@ -68,7 +51,7 @@ workflows:
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
-            - terraform-apply
+            - terraform-update-infrastructure
 
           aws-region: ${AWS_DEFAULT_REGION}
 

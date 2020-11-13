@@ -29,7 +29,7 @@ commands:
             echo "export TF_VAR_aws_ecs_service_web_name=ecs-playground-service-web" >> $BASH_ENV
 
             # And some more useful generated variables
-            echo "export AWS_ECR_ACCOUNT_URL=$AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com"
+            echo "export AWS_ECR_ACCOUNT_URL=$AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com" >> $BASH_ENV
 
   test-envs:
     description: Test setted env vars
@@ -44,6 +44,7 @@ commands:
             echo $TF_VAR_aws_ecs_cluster_name
             echo $TF_VAR_aws_ecs_stack_name
             echo $TF_VAR_aws_ecs_task_web_name
+            eho $AWS_ECR_ACCOUNT_URL
 
 
 jobs:

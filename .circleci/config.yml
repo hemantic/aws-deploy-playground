@@ -95,9 +95,7 @@ jobs:
       - checkout
       - aws-cli/install
       - aws-cli/setup:
-          aws-access-key-id: $AWS_ACCESS_KEY_ID
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
-          aws-region: $AWS_REGION
+          aws-region: "AWS_REGION"
       - aws-ecs/update-service:
           family: "${TF_VAR_aws_ecs_task_web_name}"
           cluster-name: "${TF_VAR_aws_ecs_cluster_name}"

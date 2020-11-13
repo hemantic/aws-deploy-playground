@@ -11,10 +11,10 @@ envs: &envs
     # TF_VAR prefixed names so we don't have to manually pass them to terraform via -var.
 
     # First, pass secrets from CircleCI project settings
-    TF_VAR_aws_access_key: "${AWS_ACCESS_KEY_ID}"
-    TF_VAR_aws_secret_key: "${AWS_SECRET_ACCESS_KEY}"
-    TF_VAR_aws_region: "${AWS_REGION}"
-    TF_VAR_aws_account_id: "${AWS_ACCOUNT_ID}"
+    TF_VAR_aws_access_key: ${AWS_ACCESS_KEY_ID}
+    TF_VAR_aws_secret_key: ${AWS_SECRET_ACCESS_KEY}
+    TF_VAR_aws_region: ${AWS_REGION}
+    TF_VAR_aws_account_id: ${AWS_ACCOUNT_ID}
 
     # Than pass settings in order to reuse them here and in Terraform, keeping them DRY
     TF_VAR_aws_ecr_repository_name: "ecr-playground-repo"

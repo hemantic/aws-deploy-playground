@@ -5,7 +5,6 @@ terraform {
     bucket         = "hemantic-playground-terraform-state"
     key            = "global/s3/terraform.tfstate"
     region         = "eu-north-1"
-    dynamodb_table = "playground-terraform-state-locks-table"
     encrypt        = true
   }
 }

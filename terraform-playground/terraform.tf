@@ -25,6 +25,34 @@ locals {
   aws_ecs_service_web_name = "ecs-playground-service-web"
 }
 
+
+resource "aws_ecr_repository" "playground" {
+  name = local.aws_ecr_repository_name
+}
+
+resource "aws_ecr_lifecycle_policy" "max_images" {
+  repository = aws_ecr_repository.playground.name
+
+  policy = <<EOF
+{
+    "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Keeping only 3 youngest images; expires the old ones",
+            "selection": {
+                "tagStatus": "any",
+                "countType": "imageCountMoreThan",
+                "countNumber": 3
+            },
+            "action": {
+                "type": "expire"
+            }
+        }
+    ]
+}
+EOF
+}
+
 resource "aws_ecs_cluster" "cluster" {
   name = local.aws_ecs_cluster_name
 }
@@ -110,6 +138,6 @@ data "template_file" "container_image_web" {
   template = file("aws-ecs-task-definitions/playground-web.json")
   vars = {
     service_name = local.aws_ecs_service_web_name
-    image_name   = local.aws_ecr_repository_name
+    image_name   = aws_ecr_repository.playground.repository_url
   }
 }

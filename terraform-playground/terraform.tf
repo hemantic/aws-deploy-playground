@@ -94,13 +94,8 @@ resource "aws_cloudformation_stack" "stack" {
 }
 
 resource "aws_ecs_task_definition" "web" {
-  container_definitions = file("aws-ecs-task-definitions/playground-web.json")
-  vars = {
-    service_name = local.aws_ecs_service_web_name
-    image_name   = local.aws_ecr_repository_name
-  }
-
-  family = local.aws_ecs_task_web_name
+  container_definitions = data.template_file.container_image_web.rendered
+  family                = local.aws_ecs_task_web_name
 }
 
 resource "aws_ecs_service" "web" {
@@ -109,4 +104,12 @@ resource "aws_ecs_service" "web" {
   cluster         = aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.web.arn
   desired_count   = 1
+}
+
+data "template_file" "container_image_web" {
+  template = file("aws-ecs-task-definitions/playground-web.json")
+  vars = {
+    service_name = local.aws_ecs_service_web_name
+    image_name   = local.aws_ecr_repository_name
+  }
 }

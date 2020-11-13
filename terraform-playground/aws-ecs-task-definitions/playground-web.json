@@ -17,6 +17,12 @@
         "hostPort": 80,
         "protocol": "tcp"
       }
-    ]
+    ],
+    "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+        "awslogs-group":"${service_name}"
+      }
+    }
   }
 ]

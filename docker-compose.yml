@@ -4,8 +4,8 @@ services:
   web:
     build: ./src
     restart: always
-    command: uwsgi --http :8000 --module srv.web:app --workers 1 --threads 1
+    command: uwsgi --http :80 --module srv.web:app --workers 1 --threads 1
     volumes:
       - ./src:/srv:delegated
     ports:
-      - 80:8000
+      - 80:80

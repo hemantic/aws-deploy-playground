@@ -32,7 +32,7 @@ jobs:
           name: Terraform init & plan
           command: |
             cd terraform-playground
-            terraform init -backend-config="access_key=${AWS_ACCESS_KEY_ID}" -backend-config="secret_key=${AWS_SECRET_ACCESS_KEY}"
+            terraform init
             source setup_env.sh
             terraform plan -var-file="prod.tfvars" -var "version_tag=${CIRCLE_SHA1}"
 
@@ -46,7 +46,7 @@ jobs:
           name: Terraform init & apply
           command: |
             cd terraform-playground
-            terraform init -backend-config="access_key=${AWS_ACCESS_KEY_ID}" -backend-config="secret_key=${AWS_SECRET_ACCESS_KEY}"
+            terraform init
             source setup_env.sh
             terraform apply -auto-approve -var "version_tag=${CIRCLE_SHA1}"
 

@@ -189,6 +189,7 @@ resource "aws_ecs_service" "flower" {
 
 data "template_file" "container_image_web" {
   template = file("aws-ecs-task-definitions/playground-web.json")
+  depends_on = [aws_secretsmanager_secret.sample_env_var]
   vars = {
     service_name = var.aws_ecs_service_web_name
     image_name   = aws_ecr_repository.playground.repository_url
@@ -200,6 +201,7 @@ data "template_file" "container_image_web" {
 
 data "template_file" "container_image_celery" {
   template = file("aws-ecs-task-definitions/playground-web.json")
+  depends_on = [aws_secretsmanager_secret.sample_env_var]
   vars = {
     service_name = var.aws_ecs_service_web_name
     image_name   = aws_ecr_repository.playground.repository_url
@@ -211,6 +213,7 @@ data "template_file" "container_image_celery" {
 
 data "template_file" "container_image_flower" {
   template = file("aws-ecs-task-definitions/playground-web.json")
+  depends_on = [aws_secretsmanager_secret.sample_env_var]
   vars = {
     service_name = var.aws_ecs_service_web_name
     image_name   = aws_ecr_repository.playground.repository_url

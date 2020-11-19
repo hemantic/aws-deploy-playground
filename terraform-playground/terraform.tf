@@ -255,10 +255,6 @@ data "template_file" "container_image_flower" {
   }
 }
 
-resource "aws_secretsmanager_secret" "sample_env_var" {
-  name = "/playground/prod/SAMPLE_ENV_VAR_2"
-}
-
 module "redis" {
   source  = "cloudposse/elasticache-redis/aws"
   version = "0.25.0"

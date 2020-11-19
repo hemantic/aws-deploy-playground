@@ -87,14 +87,14 @@ resource "aws_iam_role" "ecs_role" {
   assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
 }
 
-resource "aws_iam_role" "ecs_task_execuion_role" {
-  name               = "ecs-playground-tak-execution-role"
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name               = "ecs-playground-task-execution-role"
   assume_role_policy = data.aws_iam_policy_document.instance-assume-role-policy.json
 }
 
 resource "aws_iam_role_policy" "password_policy_secretsmanager" {
   name       = "password-policy-secretsmanager"
-  role       = aws_iam_role.ecs_task_execuion_role.id
+  role       = aws_iam_role.ecs_task_execution_role.id
   depends_on = [aws_secretsmanager_secret.sample_env_var]
 
   policy = <<EOF
@@ -118,6 +118,11 @@ EOF
 resource "aws_iam_role_policy_attachment" "ecs_iam_policy_attachment" {
   role       = aws_iam_role.ecs_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  role = aws_iam_role.ecs_task_execution_role.name
 }
 
 resource "aws_iam_instance_profile" "instance_profile" {
@@ -177,19 +182,19 @@ resource "aws_cloudformation_stack" "stack" {
 resource "aws_ecs_task_definition" "web" {
   container_definitions = data.template_file.container_image_web.rendered
   family                = var.aws_ecs_task_web_name
-  execution_role_arn    = aws_iam_role.ecs_task_execuion_role.arn
+  execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
 }
 
 resource "aws_ecs_task_definition" "celery" {
   container_definitions = data.template_file.container_image_celery.rendered
   family                = var.aws_ecs_task_celery_name
-  execution_role_arn    = aws_iam_role.ecs_task_execuion_role.arn
+  execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
 }
 
 resource "aws_ecs_task_definition" "flower" {
   container_definitions = data.template_file.container_image_flower.rendered
   family                = var.aws_ecs_task_flower_name
-  execution_role_arn    = aws_iam_role.ecs_task_execuion_role.arn
+  execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
 }
 
 resource "aws_ecs_service" "web" {

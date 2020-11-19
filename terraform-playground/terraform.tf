@@ -155,7 +155,7 @@ resource "aws_cloudformation_stack" "stack" {
   parameters = {
     VpcId = module.vpc.vpc_id
 
-    AsgMaxSize              = 1
+    AsgMaxSize              = 3
     AutoAssignPublicIp      = "INHERIT"
     ConfigureDataVolume     = false
     ConfigureRootVolume     = true

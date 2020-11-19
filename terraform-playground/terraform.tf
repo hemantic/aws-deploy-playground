@@ -89,6 +89,30 @@ resource "aws_iam_role" "ecs_role" {
 EOF
 }
 
+
+resource "aws_iam_role_policy" "password_policy_secretsmanager" {
+  name = "password-policy-secretsmanager"
+  role = aws_iam_role.ecs_role.id
+  depends_on = [aws_secretsmanager_secret.sample_env_var]
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "secretsmanager:GetSecretValue"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "${aws_secretsmanager_secret.sample_env_var.arn}"
+      ]
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_iam_role_policy_attachment" "ecs_iam_policy_attachment" {
   role       = aws_iam_role.ecs_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
@@ -151,6 +175,7 @@ resource "aws_cloudformation_stack" "stack" {
 resource "aws_ecs_task_definition" "web" {
   container_definitions = data.template_file.container_image_web.rendered
   family                = var.aws_ecs_task_web_name
+  execution_role_arn = ""
 }
 
 resource "aws_ecs_task_definition" "celery" {

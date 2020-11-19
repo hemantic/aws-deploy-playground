@@ -26,8 +26,15 @@ commands:
             echo "export TF_VAR_aws_ecr_repository_name=ecr-playground-repo" >> $BASH_ENV
             echo "export TF_VAR_aws_ecs_cluster_name=ecs-playground-cluster" >> $BASH_ENV
             echo "export TF_VAR_aws_ecs_stack_name=ecs-playground-stack" >> $BASH_ENV
+
             echo "export TF_VAR_aws_ecs_task_web_name=ecs-playground-task-web" >> $BASH_ENV
             echo "export TF_VAR_aws_ecs_service_web_name=ecs-playground-service-web" >> $BASH_ENV
+
+            echo "export TF_VAR_aws_ecs_task_celery_name=ecs-playground-task-celery" >> $BASH_ENV
+            echo "export TF_VAR_aws_ecs_service_celery_name=ecs-playground-service-celery" >> $BASH_ENV
+
+            echo "export TF_VAR_aws_ecs_task_flower_name=ecs-playground-task-flower" >> $BASH_ENV
+            echo "export TF_VAR_aws_ecs_service_flower_name=ecs-playground-service-flower" >> $BASH_ENV
 
             # And some more useful generated variables
             echo "export AWS_ECR_ACCOUNT_URL=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com" >> $BASH_ENV

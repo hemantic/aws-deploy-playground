@@ -9,7 +9,13 @@
       "-c"
     ],
     "command": [
-      "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
+      "{command}"
+    ],
+    "secrets": [
+      {
+        "name": "SAMPLE_ENV_VAR",
+        "valueFrom": "${data.aws_ssm_parameter.sample_env_var.arn}"
+      }
     ],
     "portMappings": [
       {

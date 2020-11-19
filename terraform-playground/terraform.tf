@@ -216,11 +216,11 @@ data "template_file" "container_image_flower" {
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
     command      = "celery -A app worker"
-    sample_env_var = data.aws_ssm_parameter.sample_env_var.arn
+    sample_env_var = aws_secretsmanager_secret.sample_env_var.arn
   }
 }
 
-data "aws_ssm_parameter" "sample_env_var" {
+resource "aws_secretsmanager_secret" "sample_env_var" {
   name = "playground/prod/SAMPLE_ENV_VAR"
 }
 

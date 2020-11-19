@@ -194,6 +194,7 @@ data "template_file" "container_image_web" {
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
     command      = "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
+    sample_env_var = data.aws_ssm_parameter.sample_env_var.arn
   }
 }
 
@@ -204,6 +205,7 @@ data "template_file" "container_image_celery" {
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
     command      = "celery -A srv.tasks worker"
+    sample_env_var = data.aws_ssm_parameter.sample_env_var.arn
   }
 }
 
@@ -214,6 +216,7 @@ data "template_file" "container_image_flower" {
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
     command      = "celery -A app worker"
+    sample_env_var = data.aws_ssm_parameter.sample_env_var.arn
   }
 }
 

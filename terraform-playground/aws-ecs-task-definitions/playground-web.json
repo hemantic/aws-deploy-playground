@@ -14,7 +14,7 @@
     "secrets": [
       {
         "name": "SAMPLE_ENV_VAR",
-        "valueFrom": "${data.aws_ssm_parameter.sample_env_var.arn}"
+        "valueFrom": "${sample_env_var}"
       }
     ],
     "portMappings": [

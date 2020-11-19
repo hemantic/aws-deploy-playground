@@ -33,10 +33,10 @@ provider "aws" {
 }
 
 locals {
-  availability_zones = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
-  vpc_cidr           = "10.0.0.0/16"
-  private_subnets    = ["10.0.1.0/24", "10.0.2.0/24"]
-  public_subnets     = ["10.0.101.0/24", "10.0.102.0/24"]
+  availability_zones  = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
+  vpc_cidr            = "10.0.0.0/16"
+  private_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
+  public_subnets      = ["10.0.101.0/24", "10.0.102.0/24"]
   elasticache_subnets = ["10.0.10.0/24", "10.0.20.0/24"]
 }
 
@@ -91,8 +91,8 @@ EOF
 
 
 resource "aws_iam_role_policy" "password_policy_secretsmanager" {
-  name = "password-policy-secretsmanager"
-  role = aws_iam_role.ecs_role.id
+  name       = "password-policy-secretsmanager"
+  role       = aws_iam_role.ecs_role.id
   depends_on = [aws_secretsmanager_secret.sample_env_var]
 
   policy = <<EOF
@@ -130,9 +130,9 @@ module "vpc" {
   name = var.aws_ecs_stack_name
   cidr = local.vpc_cidr
 
-  azs             = local.availability_zones
-  private_subnets = local.private_subnets
-  public_subnets  = local.public_subnets
+  azs                 = local.availability_zones
+  private_subnets     = local.private_subnets
+  public_subnets      = local.public_subnets
   elasticache_subnets = local.elasticache_subnets
 
   enable_nat_gateway = true
@@ -175,17 +175,19 @@ resource "aws_cloudformation_stack" "stack" {
 resource "aws_ecs_task_definition" "web" {
   container_definitions = data.template_file.container_image_web.rendered
   family                = var.aws_ecs_task_web_name
-  execution_role_arn = ""
+  execution_role_arn    = aws_iam_role.ecs_role.arn
 }
 
 resource "aws_ecs_task_definition" "celery" {
   container_definitions = data.template_file.container_image_celery.rendered
   family                = var.aws_ecs_task_celery_name
+  execution_role_arn    = aws_iam_role.ecs_role.arn
 }
 
 resource "aws_ecs_task_definition" "flower" {
   container_definitions = data.template_file.container_image_flower.rendered
   family                = var.aws_ecs_task_flower_name
+  execution_role_arn    = aws_iam_role.ecs_role.arn
 }
 
 resource "aws_ecs_service" "web" {
@@ -213,37 +215,37 @@ resource "aws_ecs_service" "flower" {
 }
 
 data "template_file" "container_image_web" {
-  template = file("aws-ecs-task-definitions/playground-web.json")
+  template   = file("aws-ecs-task-definitions/playground-web.json")
   depends_on = [aws_secretsmanager_secret.sample_env_var]
   vars = {
-    service_name = var.aws_ecs_service_web_name
-    image_name   = aws_ecr_repository.playground.repository_url
-    aws_region   = var.aws_region
-    command      = "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
+    service_name   = var.aws_ecs_service_web_name
+    image_name     = aws_ecr_repository.playground.repository_url
+    aws_region     = var.aws_region
+    command        = "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
     sample_env_var = aws_secretsmanager_secret.sample_env_var.arn
   }
 }
 
 data "template_file" "container_image_celery" {
-  template = file("aws-ecs-task-definitions/playground-web.json")
+  template   = file("aws-ecs-task-definitions/playground-web.json")
   depends_on = [aws_secretsmanager_secret.sample_env_var]
   vars = {
-    service_name = var.aws_ecs_service_web_name
-    image_name   = aws_ecr_repository.playground.repository_url
-    aws_region   = var.aws_region
-    command      = "celery -A srv.tasks worker"
+    service_name   = var.aws_ecs_service_web_name
+    image_name     = aws_ecr_repository.playground.repository_url
+    aws_region     = var.aws_region
+    command        = "celery -A srv.tasks worker"
     sample_env_var = aws_secretsmanager_secret.sample_env_var.arn
   }
 }
 
 data "template_file" "container_image_flower" {
-  template = file("aws-ecs-task-definitions/playground-web.json")
+  template   = file("aws-ecs-task-definitions/playground-web.json")
   depends_on = [aws_secretsmanager_secret.sample_env_var]
   vars = {
-    service_name = var.aws_ecs_service_web_name
-    image_name   = aws_ecr_repository.playground.repository_url
-    aws_region   = var.aws_region
-    command      = "celery -A app worker"
+    service_name   = var.aws_ecs_service_web_name
+    image_name     = aws_ecr_repository.playground.repository_url
+    aws_region     = var.aws_region
+    command        = "celery -A app worker"
     sample_env_var = aws_secretsmanager_secret.sample_env_var.arn
   }
 }

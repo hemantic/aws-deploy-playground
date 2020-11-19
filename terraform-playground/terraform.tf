@@ -38,6 +38,8 @@ locals {
   private_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
   public_subnets      = ["10.0.101.0/24", "10.0.102.0/24"]
   elasticache_subnets = ["10.0.10.0/24", "10.0.20.0/24"]
+
+  sample_env_var_arn = "arn:aws:secretsmanager:eu-north-1:759973589405:secret:/playground/prod/SAMPLE_ENV_VAR-6UjTjO"
 }
 
 resource "aws_ecr_repository" "playground" {
@@ -95,7 +97,6 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 resource "aws_iam_role_policy" "password_policy_secretsmanager" {
   name       = "password-policy-secretsmanager"
   role       = aws_iam_role.ecs_task_execution_role.id
-  depends_on = [aws_secretsmanager_secret.sample_env_var]
 
   policy = <<EOF
 {
@@ -107,7 +108,7 @@ resource "aws_iam_role_policy" "password_policy_secretsmanager" {
       ],
       "Effect": "Allow",
       "Resource": [
-        "${aws_secretsmanager_secret.sample_env_var.arn}"
+        "${local.sample_env_var_arn}"
       ]
     }
   ]
@@ -223,37 +224,34 @@ resource "aws_ecs_service" "flower" {
 
 data "template_file" "container_image_web" {
   template   = file("aws-ecs-task-definitions/playground-web.json")
-  depends_on = [aws_secretsmanager_secret.sample_env_var]
   vars = {
     service_name   = var.aws_ecs_service_web_name
     image_name     = aws_ecr_repository.playground.repository_url
     aws_region     = var.aws_region
     command        = "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
-    sample_env_var = aws_secretsmanager_secret.sample_env_var.arn
+    sample_env_var = local.sample_env_var_arn
   }
 }
 
 data "template_file" "container_image_celery" {
   template   = file("aws-ecs-task-definitions/playground-web.json")
-  depends_on = [aws_secretsmanager_secret.sample_env_var]
   vars = {
     service_name   = var.aws_ecs_service_web_name
     image_name     = aws_ecr_repository.playground.repository_url
     aws_region     = var.aws_region
     command        = "celery -A srv.tasks worker"
-    sample_env_var = aws_secretsmanager_secret.sample_env_var.arn
+    sample_env_var = local.sample_env_var_arn
   }
 }
 
 data "template_file" "container_image_flower" {
   template   = file("aws-ecs-task-definitions/playground-web.json")
-  depends_on = [aws_secretsmanager_secret.sample_env_var]
   vars = {
     service_name   = var.aws_ecs_service_web_name
     image_name     = aws_ecr_repository.playground.repository_url
     aws_region     = var.aws_region
     command        = "celery -A app worker"
-    sample_env_var = aws_secretsmanager_secret.sample_env_var.arn
+    sample_env_var = local.sample_env_var_arn
   }
 }
 

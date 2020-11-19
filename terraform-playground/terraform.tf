@@ -194,7 +194,6 @@ data "template_file" "container_image_web" {
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
     command      = "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
-    env_vars     = []
   }
 }
 
@@ -205,7 +204,6 @@ data "template_file" "container_image_celery" {
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
     command      = "celery -A srv.tasks worker"
-    env_vars     = []
   }
 }
 

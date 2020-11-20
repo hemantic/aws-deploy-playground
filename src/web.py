@@ -1,6 +1,6 @@
 import falcon
 from envparse import env
-import tasks
+from . import tasks
 
 
 class CallbackIndex(object):

@@ -42,7 +42,7 @@ data "template_file" "container_image_web" {
     command           = "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
 
     sample_env_var = local.sample_env_var_arn
-    redis_url      = aws_elasticache_replication_group.default.primary_endpoint_address
+    redis_url      = "redis://${aws_elasticache_replication_group.default.primary_endpoint_address}:${aws_elasticache_replication_group.default.port}"
   }
 }
 
@@ -57,7 +57,7 @@ data "template_file" "container_image_celery" {
     command           = "celery -A srv.tasks:celery worker"
 
     sample_env_var = local.sample_env_var_arn
-    redis_url      = aws_elasticache_replication_group.default.primary_endpoint_address
+    redis_url      = "redis://${aws_elasticache_replication_group.default.primary_endpoint_address}:${aws_elasticache_replication_group.default.port}"
   }
 }
 
@@ -72,6 +72,6 @@ data "template_file" "container_image_flower" {
     command           = "celery -A srv.tasks:celery flower --port=80"
 
     sample_env_var = local.sample_env_var_arn
-    redis_url      = aws_elasticache_replication_group.default.primary_endpoint_address
+    redis_url      = "redis://${aws_elasticache_replication_group.default.primary_endpoint_address}:${aws_elasticache_replication_group.default.port}"
   }
 }

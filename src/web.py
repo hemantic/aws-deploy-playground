@@ -1,6 +1,6 @@
 import falcon
 from envparse import env
-from tasks import calculate_square
+from .tasks import calculate_square
 
 
 class CallbackIndex(object):

@@ -1,4 +1,5 @@
 falcon==2.0.0
-celery==5.0.2
+celery==4.4.7
 flower==0.9.5
 envparse==0.2.0
+redis==3.5.3

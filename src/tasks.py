@@ -8,3 +8,8 @@ celery = Celery('tasks')
 celery.conf.update(
     broker_url=env('REDIS_URL'),
 )
+
+
+@celery.task
+def calculate_square(x):
+    return x * x

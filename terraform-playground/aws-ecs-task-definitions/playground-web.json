@@ -17,6 +17,12 @@
         "valueFrom": "${sample_env_var}"
       }
     ],
+    "environment": [
+      {
+        "name": "REDIS_URL",
+        "value": "${redis_url}"
+      }
+    ],
     "portMappings": [
       {
         "containerPort": 80,

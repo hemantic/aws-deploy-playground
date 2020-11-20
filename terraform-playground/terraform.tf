@@ -95,8 +95,8 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 }
 
 resource "aws_iam_role_policy" "password_policy_secretsmanager" {
-  name       = "password-policy-secretsmanager"
-  role       = aws_iam_role.ecs_task_execution_role.id
+  name = "password-policy-secretsmanager"
+  role = aws_iam_role.ecs_task_execution_role.id
 
   policy = <<EOF
 {
@@ -123,7 +123,7 @@ resource "aws_iam_role_policy_attachment" "ecs_iam_policy_attachment" {
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-  role = aws_iam_role.ecs_task_execution_role.name
+  role       = aws_iam_role.ecs_task_execution_role.name
 }
 
 resource "aws_iam_instance_profile" "instance_profile" {
@@ -223,35 +223,41 @@ resource "aws_ecs_service" "flower" {
 }
 
 data "template_file" "container_image_web" {
-  template   = file("aws-ecs-task-definitions/playground-web.json")
+  template = file("aws-ecs-task-definitions/playground-web.json")
   vars = {
-    service_name   = var.aws_ecs_service_web_name
-    image_name     = aws_ecr_repository.playground.repository_url
-    aws_region     = var.aws_region
-    command        = "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
+    service_name = var.aws_ecs_service_web_name
+    image_name   = aws_ecr_repository.playground.repository_url
+    aws_region   = var.aws_region
+    command      = "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
+
     sample_env_var = local.sample_env_var_arn
+    redis_url      = module.redis.endpoint
   }
 }
 
 data "template_file" "container_image_celery" {
-  template   = file("aws-ecs-task-definitions/playground-web.json")
+  template = file("aws-ecs-task-definitions/playground-web.json")
   vars = {
-    service_name   = var.aws_ecs_service_web_name
-    image_name     = aws_ecr_repository.playground.repository_url
-    aws_region     = var.aws_region
-    command        = "celery -A srv.tasks worker"
+    service_name = var.aws_ecs_service_web_name
+    image_name   = aws_ecr_repository.playground.repository_url
+    aws_region   = var.aws_region
+    command      = "celery -A srv.tasks worker"
+
     sample_env_var = local.sample_env_var_arn
+    redis_url      = module.redis.endpoint
   }
 }
 
 data "template_file" "container_image_flower" {
-  template   = file("aws-ecs-task-definitions/playground-web.json")
+  template = file("aws-ecs-task-definitions/playground-web.json")
   vars = {
-    service_name   = var.aws_ecs_service_web_name
-    image_name     = aws_ecr_repository.playground.repository_url
-    aws_region     = var.aws_region
-    command        = "celery -A app worker"
+    service_name = var.aws_ecs_service_web_name
+    image_name   = aws_ecr_repository.playground.repository_url
+    aws_region   = var.aws_region
+    command      = "celery -A app worker"
+
     sample_env_var = local.sample_env_var_arn
+    redis_url      = module.redis.endpoint
   }
 }
 

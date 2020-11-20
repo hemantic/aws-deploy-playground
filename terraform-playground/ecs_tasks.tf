@@ -1,13 +1,16 @@
 resource "aws_cloudwatch_log_group" "web" {
-  name = local.aws_ecs_service_web_name
+  name              = local.aws_ecs_service_web_name
+  retention_in_days = 5
 }
 
 resource "aws_cloudwatch_log_group" "celery" {
-  name = local.aws_ecs_service_celery_name
+  name              = local.aws_ecs_service_celery_name
+  retention_in_days = 5
 }
 
 resource "aws_cloudwatch_log_group" "flower" {
-  name = local.aws_ecs_service_flower_name
+  name              = local.aws_ecs_service_flower_name
+  retention_in_days = 5
 }
 
 resource "aws_ecs_task_definition" "web" {

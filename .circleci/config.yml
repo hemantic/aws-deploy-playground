@@ -81,7 +81,7 @@ jobs:
       - aws-ecs/update-service:
           cluster-name: "<< pipeline.parameters.app-name >>"
           family: "<< pipeline.parameters.app-name >>Task-web"
-          service-name: "<< pipeline.parameters.app-name >>ervice-web"
+          service-name: "<< pipeline.parameters.app-name >>Service-web"
           force-new-deployment: true
       - aws-ecs/update-service:
           cluster-name: "<< pipeline.parameters.app-name >>"

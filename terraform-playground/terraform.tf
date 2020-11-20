@@ -228,6 +228,7 @@ data "template_file" "container_image_web" {
     service_name = var.aws_ecs_service_web_name
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
+    log_stream_prefix = "web_"
     command      = "uwsgi --http :80 --module srv.web:app --workers 1 --threads 1"
 
     sample_env_var = local.sample_env_var_arn
@@ -241,6 +242,7 @@ data "template_file" "container_image_celery" {
     service_name = var.aws_ecs_service_web_name
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
+    log_stream_prefix = "celery_"
     command      = "celery -A srv.tasks:celery worker"
 
     sample_env_var = local.sample_env_var_arn
@@ -254,6 +256,7 @@ data "template_file" "container_image_flower" {
     service_name = var.aws_ecs_service_web_name
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
+    log_stream_prefix = "flower_"
     command      = "celery -A srv.tasks:celery flower --port=80"
 
     sample_env_var = local.sample_env_var_arn

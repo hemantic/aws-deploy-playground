@@ -34,7 +34,8 @@
     "logDriver": "awslogs",
     "options": {
         "awslogs-group": "${service_name}",
-        "awslogs-region": "${aws_region}"
+        "awslogs-region": "${aws_region}",
+        "awslogs-stream-prefix": "${log_stream_prefix}"
       }
     }
   }

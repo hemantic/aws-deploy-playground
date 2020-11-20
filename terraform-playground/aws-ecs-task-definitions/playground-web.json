@@ -31,11 +31,11 @@
       }
     ],
     "logConfiguration": {
-    "logDriver": "awslogs",
-    "options": {
-        "awslogs-group": "${service_name}",
-        "awslogs-region": "${aws_region}",
-        "awslogs-stream-prefix": "${log_stream_prefix}"
+      "logDriver": "awslogs",
+      "options": {
+          "awslogs-group": "${service_name}",
+          "awslogs-region": "${aws_region}",
+          "awslogs-stream-prefix": "${log_stream_prefix}"
       }
     }
   }

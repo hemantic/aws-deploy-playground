@@ -1,6 +1,6 @@
 import falcon
 from envparse import env
-from .tasks import calculate_square
+import tasks
 
 
 class CallbackIndex(object):
@@ -10,7 +10,7 @@ class CallbackIndex(object):
 
 class CallbackStartTask(object):
     def on_get(self, req, resp):
-        calculate_square.delay(x=10)
+        tasks.calculate_square.delay(x=10)
 
         resp.body = 'Task added to queue'
 

@@ -1,5 +1,10 @@
 version: 2.1
 
+parameters:
+  app-name:
+    type: string
+    default: "Playground"
+
 orbs:
   aws-ecr: circleci/aws-ecr@6.14.0
   aws-ecs: circleci/aws-ecs@1.4.0
@@ -7,7 +12,7 @@ orbs:
   terraform: circleci/terraform@1.1.0
 
 commands:
-  set-envs:
+  set-terraform-envs:
     description: Reusable command for setting up env vars
     steps:
       - run:
@@ -22,38 +27,11 @@ commands:
             echo "export TF_VAR_aws_region=$AWS_REGION" >> $BASH_ENV
             echo "export TF_VAR_aws_account_id=$AWS_ACCOUNT_ID" >> $BASH_ENV
 
-            # Than pass settings in order to reuse them here and in Terraform, keeping them DRY
-            echo "export TF_VAR_aws_ecr_repository_name=ecr-playground-repo" >> $BASH_ENV
-            echo "export TF_VAR_aws_ecs_cluster_name=ecs-playground-cluster" >> $BASH_ENV
-            echo "export TF_VAR_aws_ecs_stack_name=ecs-playground-stack" >> $BASH_ENV
-
-            echo "export TF_VAR_aws_ecs_task_web_name=ecs-playground-task-web" >> $BASH_ENV
-            echo "export TF_VAR_aws_ecs_service_web_name=ecs-playground-service-web" >> $BASH_ENV
-
-            echo "export TF_VAR_aws_ecs_task_celery_name=ecs-playground-task-celery" >> $BASH_ENV
-            echo "export TF_VAR_aws_ecs_service_celery_name=ecs-playground-service-celery" >> $BASH_ENV
-
-            echo "export TF_VAR_aws_ecs_task_flower_name=ecs-playground-task-flower" >> $BASH_ENV
-            echo "export TF_VAR_aws_ecs_service_flower_name=ecs-playground-service-flower" >> $BASH_ENV
+            # Then set vars for deployment
+            echo "export TF_VAR_app_name=<< pipeline.parameters.app-name >>" >> $BASH_ENV
 
             # And some more useful generated variables
             echo "export AWS_ECR_ACCOUNT_URL=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com" >> $BASH_ENV
-
-  test-envs:
-    description: Test setted env vars
-    steps:
-      - run:
-          name: Echo some (probably) setted env vars
-          command: |
-            echo $AWS_REGION
-            echo $TF_VAR_aws_region
-
-            echo $TF_VAR_aws_ecr_repository_name
-            echo $TF_VAR_aws_ecs_cluster_name
-            echo $TF_VAR_aws_ecs_stack_name
-            echo $TF_VAR_aws_ecs_task_web_name
-            echo $AWS_ECR_ACCOUNT_URL
-
 
 jobs:
   update-infrastructure:
@@ -66,8 +44,7 @@ jobs:
       - BASH_ENV: /etc/profile
 
     steps:
-      - set-envs
-      - test-envs
+      - set-terraform-envs
       - checkout
       - run:
           name: Terraform init & apply
@@ -82,8 +59,7 @@ jobs:
       - image: circleci/python:3.8-buster
 
     steps:
-      - set-envs
-      - test-envs
+      - set-terraform-envs
       - checkout
       - setup_remote_docker
       - aws-ecr/build-and-push-image:
@@ -97,18 +73,26 @@ jobs:
       - image: circleci/python:3.8-buster
 
     steps:
-      - set-envs
-      - test-envs
+      - set-terraform-envs
       - checkout
       - aws-cli/install
       - aws-cli/setup:
           aws-region: "AWS_REGION"
       - aws-ecs/update-service:
-          family: "${TF_VAR_aws_ecs_task_web_name}"
-          cluster-name: "${TF_VAR_aws_ecs_cluster_name}"
-          service-name: "${TF_VAR_aws_ecs_service_web_name}"
+          cluster-name: "<< pipeline.parameters.app-name >>"
+          family: "<< pipeline.parameters.app-name >>Task-web"
+          service-name: "<< pipeline.parameters.app-name >>ervice-web"
           force-new-deployment: true
-          #container-image-name-updates: "container=${AWS_ECS_SERVICE_NAME},tag=${CIRCLE_SHA1}"
+      - aws-ecs/update-service:
+          cluster-name: "<< pipeline.parameters.app-name >>"
+          family: "<< pipeline.parameters.app-name >>Task-celery"
+          service-name: "<< pipeline.parameters.app-name >>Service-celery"
+          force-new-deployment: true
+      - aws-ecs/update-service:
+          cluster-name: "<< pipeline.parameters.app-name >>"
+          family: "<< pipeline.parameters.app-name >>Task-flower"
+          service-name: "<< pipeline.parameters.app-name >>Service-flower"
+          force-new-deployment: true
 
 workflows:
   build-and-deploy:

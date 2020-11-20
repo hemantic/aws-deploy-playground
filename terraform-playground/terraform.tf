@@ -241,7 +241,7 @@ data "template_file" "container_image_celery" {
     service_name = var.aws_ecs_service_web_name
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
-    command      = "celery -A srv.tasks worker"
+    command      = "celery -A srv.tasks:celery worker"
 
     sample_env_var = local.sample_env_var_arn
     redis_url      = module.redis.endpoint
@@ -254,7 +254,7 @@ data "template_file" "container_image_flower" {
     service_name = var.aws_ecs_service_web_name
     image_name   = aws_ecr_repository.playground.repository_url
     aws_region   = var.aws_region
-    command      = "celery -A app worker"
+    command      = "celery -A srv.tasks:celery flower --port=80"
 
     sample_env_var = local.sample_env_var_arn
     redis_url      = module.redis.endpoint

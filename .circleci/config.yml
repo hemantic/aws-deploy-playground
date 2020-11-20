@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   app-name:
     type: string
-    default: "Playground"
+    default: "playground"
 
 orbs:
   aws-ecr: circleci/aws-ecr@6.14.0
@@ -63,7 +63,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - aws-ecr/build-and-push-image:
-          repo: "${TF_VAR_aws_ecr_repository_name}"
+          repo: "<< pipeline.parameters.app-name >>"
           skip-when-tags-exist: false
           tag: "latest,${CIRCLE_SHA1}"
           create-repo: true

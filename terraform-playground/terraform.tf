@@ -35,7 +35,7 @@ locals {
 
   aws_redis_engine_version       = "6.x"
   aws_redis_sg_name              = "${var.app_name}RedisSG"
-  aws_redis_parameter_group_name = "${var.app_name}.redis${local.aws_redis_engine_version}"
+  aws_redis_parameter_group_name = "${var.app_name}RedisPG"
   aws_redis_replication_group    = "${var.app_name}RedisRG"
 
   aws_ecs_task_web_name    = "${var.app_name}Task-web"

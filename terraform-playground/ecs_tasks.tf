@@ -1,3 +1,15 @@
+resource "aws_cloudwatch_log_group" "web" {
+  name = local.aws_ecs_service_web_name
+}
+
+resource "aws_cloudwatch_log_group" "celery" {
+  name = local.aws_ecs_service_celery_name
+}
+
+resource "aws_cloudwatch_log_group" "flower" {
+  name = local.aws_ecs_service_flower_name
+}
+
 resource "aws_ecs_task_definition" "web" {
   container_definitions = data.template_file.container_image_web.rendered
   family                = local.aws_ecs_task_web_name
@@ -35,7 +47,7 @@ data "template_file" "container_image_celery" {
   template   = file("aws-ecs-task-definitions/playground.json")
   depends_on = [aws_elasticache_replication_group.default]
   vars = {
-    service_name      = local.aws_ecs_service_web_name
+    service_name      = local.aws_ecs_service_celery_name
     image_name        = aws_ecr_repository.playground.repository_url
     aws_region        = var.aws_region
     log_stream_prefix = "celery_"
@@ -50,7 +62,7 @@ data "template_file" "container_image_flower" {
   template   = file("aws-ecs-task-definitions/playground.json")
   depends_on = [aws_elasticache_replication_group.default]
   vars = {
-    service_name      = local.aws_ecs_service_web_name
+    service_name      = local.aws_ecs_service_flower_name
     image_name        = aws_ecr_repository.playground.repository_url
     aws_region        = var.aws_region
     log_stream_prefix = "flower_"

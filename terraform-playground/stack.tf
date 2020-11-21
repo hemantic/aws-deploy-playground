@@ -96,8 +96,8 @@ resource "aws_cloudformation_stack" "stack" {
     RootDeviceName          = "/dev/xvda"
     RootEbsVolumeSize       = 30
     SecurityIngressCidrIp   = "0.0.0.0/0"
-    SecurityIngressFromPort = 80
-    SecurityIngressToPort   = 80
+    SecurityIngressFromPort = 1
+    SecurityIngressToPort   = 65535
     SpotAllocationStrategy  = "diversified"
     SubnetIds               = join(",", module.vpc.public_subnets)
     UseSpot                 = false

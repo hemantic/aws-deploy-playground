@@ -17,21 +17,18 @@ resource "aws_ecs_task_definition" "web" {
   container_definitions = data.template_file.container_image_web.rendered
   family                = local.aws_ecs_task_web_name
   execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
-  network_mode          = "host"
 }
 
 resource "aws_ecs_task_definition" "celery" {
   container_definitions = data.template_file.container_image_celery.rendered
   family                = local.aws_ecs_task_celery_name
   execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
-  network_mode          = "host"
 }
 
 resource "aws_ecs_task_definition" "flower" {
   container_definitions = data.template_file.container_image_flower.rendered
   family                = local.aws_ecs_task_flower_name
   execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
-  network_mode          = "host"
 }
 
 data "template_file" "container_image_web" {

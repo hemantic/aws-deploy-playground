@@ -92,7 +92,7 @@ resource "aws_cloudformation_stack" "stack" {
     EcsInstanceType         = "t3.micro"
     IamRoleInstanceProfile  = aws_iam_instance_profile.instance_profile.arn
     IsWindows               = false
-    KeyName                 = "wondersell-ecs-default"
+    KeyName                 = local.ssh_key_name
     RootDeviceName          = "/dev/xvda"
     RootEbsVolumeSize       = 30
     SecurityIngressCidrIp   = "0.0.0.0/0"

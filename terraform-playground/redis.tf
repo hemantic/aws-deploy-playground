@@ -13,15 +13,14 @@ resource "aws_security_group_rule" "redis_egress" {
   type              = "egress"
 }
 
-resource "aws_security_group_rule" "redis_ingress_security_groups" {
-  count                    = length([module.vpc.default_security_group_id])
-  description              = "Allow inbound traffic from existing Security Groups"
-  from_port                = 6379
-  to_port                  = 6379
-  protocol                 = "tcp"
-  source_security_group_id = module.vpc.default_security_group_id
-  security_group_id        = join("", aws_security_group.redis.*.id)
-  type                     = "ingress"
+resource "aws_security_group_rule" "redis_ingress" {
+  description       = "Allow all ingress traffic to redis port"
+  from_port         = 6379
+  to_port           = 6379
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = join("", aws_security_group.redis.*.id)
+  type              = "ingress"
 }
 
 resource "aws_elasticache_parameter_group" "default" {

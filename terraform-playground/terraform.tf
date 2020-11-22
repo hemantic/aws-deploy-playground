@@ -53,6 +53,8 @@ locals {
   public_subnets      = ["10.0.101.0/24", "10.0.102.0/24"]
   elasticache_subnets = ["10.0.10.0/24", "10.0.20.0/24"]
 
+  ssh_key_name = "wondersell-ecs-default"
+
   sample_env_var_arn = "arn:aws:secretsmanager:eu-north-1:759973589405:secret:/playground/prod/SAMPLE_ENV_VAR-6UjTjO"
 }
 
